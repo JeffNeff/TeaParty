@@ -1,0 +1,27 @@
+services:
+  party:
+    image: tmjeff/party
+    environment:
+      MO_RPC_1: "https://rpc.mo-scout.com"
+      MO_RPC_2: 
+      BTC_RPC_1: "http://not-working-righ-now.com"
+      BTC_RPC_2: "http://not-working-righ-now.com"
+      AVALANCE_RPC_1: "http://not-working-righ-now.com"
+      AVALANCE_RPC_2: "http://not-working-righ-now.com"
+      ETH_RPC_1: 
+      ETH_RPC_2: 
+      POLY_RPC_1: 
+      POLY_RPC_2: 
+      K_SINK: http://sockeye:8080
+      DLS: http://sockeye:8080
+    ports:
+      - 8080:8080
+# debugger is a service that can be used to debug the party service
+# it is not required for normal operation and will be replaced by "Tea" 
+# the desktop application.
+# it can be accessed at http://localhost:8081 to view a stream of events
+# produced by the party service
+  debugger:
+    image: docker.io/n3wscott/sockeye:v0.7.0@sha256:e603d8494eeacce966e57f8f508e4c4f6bebc71d095e3f5a0a1abaf42c5f0e48
+    ports:
+      - 8081:8080
