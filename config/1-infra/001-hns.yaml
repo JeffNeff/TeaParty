@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hns-node
+spec:
+  selector:
+    matchLabels:
+      app: hns-node
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: hns-node
+    spec:
+      containers:
+        - name: hns-node
+          image: registry.gitlab.com/handshake-org/hnsd:v0.6.1
+          command: ["hnsd"]
+          args: ["-r", "--rpclisten=0.0.0.0", "--p2plisten=0.0.0.0"]
+          ports:
+            - name: p2p
+              containerPort: 12038
+              protocol: TCP
+            - name: rpc
+              containerPort: 13037
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: hns-node-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hns-node
+spec:
+  selector:
+    app: hns-node
+  ports:
+    - name: p2p
+      protocol: TCP
+      port: 12038
+      targetPort: p2p
+    - name: rpc
+      protocol: TCP
+      port: 13037
+      targetPort: rpc
+  type: LoadBalancer

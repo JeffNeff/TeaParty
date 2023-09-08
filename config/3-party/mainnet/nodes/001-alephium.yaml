@@ -1,0 +1,83 @@
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alephium-config-map
+data:
+  user.conf: |
+    alephium.api.network-interface = "0.0.0.0"
+    alephium.mining.api-interface = "0.0.0.0"
+    alephium.api.api-key = "030d0284f677b5f3310ae1a0012ca40b909f74197c23268acd7727d88b84fc7f"
+    
+    # !!! only uncomment below if your api port is not exposed
+    alephium.api.api-key-enabled = false
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alephium-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alephium
+  template:
+    metadata:
+      labels:
+        app: alephium
+    spec:
+      containers:
+        - name: alephium
+          image: alephium/alephium:latest
+          ports:
+            - containerPort: 9973
+              protocol: TCP
+            - containerPort: 9973
+              protocol: UDP
+            - containerPort: 10973
+              protocol: TCP
+            - containerPort: 11973
+              protocol: TCP
+            - containerPort: 12973
+              protocol: TCP
+          volumeMounts:
+            # - name: data-volume
+            #   mountPath: /alephium-home/.alephium
+            # - name: wallet-volume
+            #   mountPath: /alephium-home/.alephium-wallets
+            - name: config-volume
+              mountPath: /alephium-home/.alephium/user.conf
+              subPath: user.conf
+          securityContext:
+            runAsUser: 65534 # nobody user
+            runAsGroup: 65534 # nobody group
+            allowPrivilegeEscalation: false
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - "-c"
+                - "nc -z 127.0.0.1 12973"
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - "-c"
+                - "nc -z 127.0.0.1 12973"
+            initialDelaySeconds: 60
+            periodSeconds: 30
+      volumes:
+        # - name: data-volume
+        #   persistentVolumeClaim:
+        #     claimName: alephium-data-claim
+        # - name: wallet-volume
+        #   persistentVolumeClaim:
+        #     claimName: alephium-wallets-claim
+        - name: config-volume
+          configMap:
+            name: alephium-config-map
+            items:
+              - key: user.conf
+                path: user.conf

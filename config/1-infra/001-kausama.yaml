@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kusama-node
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kusama-node
+  template:
+    metadata:
+      labels:
+        app: kusama-node
+    spec:
+      containers:
+      - name: kusama-node
+        image: parity/kusama:latest
+        command: ["./kusama", "--name", "my-kusama-node", "--pruning", "archive"]
+        ports:
+        - containerPort: 30333
+          name: p2p
+        - containerPort: 9933
+          name: rpc
+        - containerPort: 9944
+          name: ws
+        volumeMounts:
+        - name: kusama-data
+          mountPath: /data
+      volumes:
+      - name: kusama-data
+        persistentVolumeClaim:
+          claimName: kusama-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kusama-node-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: kusama-node
+  ports:
+  - name: p2p
+    port: 30333
+    targetPort: 30333
+  - name: rpc
+    port: 9933
+    targetPort: 9933
+  - name: ws
+    port: 9944
+    targetPort: 9944

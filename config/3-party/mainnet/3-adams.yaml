@@ -1,0 +1,113 @@
+# kubectl  expose deployment adams --type=LoadBalancer --name=adamslb-prod
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adams
+  labels:
+    app: adams
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adams
+  template:
+    metadata:
+      labels:
+        app: adams
+    spec:
+      containers:
+        - name: adams
+          image: gcr.io/mineonlium/adms-prod@sha256:bc735ad711fbbcc6c89c77ac19903afa28a5b4452a9feeca568dca6a8903be34
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+            - containerPort: 30003
+          env:
+            - name: PARTY_CHAIN_1
+              value: http://143.42.255.242:8545
+            - name: PARTY_CHAIN_2
+              value: http://143.42.255.242:8545/
+            - name: CELO_RPC_1
+              value: https://celo-mainnet.infura.io/v3/61979797a8bb4bfe9dddd4ff9675db7e
+            - name: CELO_RPC_2
+              value: https://celo-mainnet.infura.io/v3/61979797a8bb4bfe9dddd4ff9675db7e
+            - name: ETH_RPC_1
+              value: https://mainnet.infura.io/v3/61979797a8bb4bfe9dddd4ff9675db7e
+            - name: ETH_RPC_2
+              value: https://mainnet.infura.io/v3/61979797a8bb4bfe9dddd4ff9675db7e
+            - name: POLY_RPC_1
+              value: https://polygon-mainnet.infura.io/v3/61979797a8bb4bfe9dddd4ff9675db7e
+            - name: POLY_RPC_2
+              value: https://polygon-mainnet.infura.io/v3/61979797a8bb4bfe9dddd4ff9675db7e
+            - name: BTC_RPC_1
+              value: "10.152.183.229:18443"
+            - name: BTC_RPC_2
+              value: "10.152.183.229:18443"
+            - name: LTC_RPC_1
+              value: 10.152.183.25:19332
+            - name: LTC_RPC_2
+              value: 10.152.183.25:19332
+            - name: RXD_RPC_1
+              value: "10.152.183.76:7332"
+            - name: RXD_RPC_2
+              value: "10.152.183.76:7332"
+            - name: KAS_RPC_1
+              value: 10.152.183.79:16110 
+            - name: KAS_RPC_2
+              value: 10.152.183.79:16110 
+            - name: SOL_RPC_1
+              value: https://api.mainnet-beta.solana.com
+            - name: SOL_RPC_2
+              value: https://api.mainnet-beta.solana.com
+            - name: OCT_RPC_1
+              value: "https://rpc.octa.space"
+            - name: OCT_RPC_2
+              value: "https://rpc.octa.space"
+            - name: ETHONE_RPC_1
+              value: http://rpcetherone.dgir.fr
+            - name: ETHONE_RPC_2
+              value: http://rpcetherone.dgir.fr
+            - name: BLOCK_EXPLORER
+              value: https://tea.mining4people.com
+            - name: KASPA_INTERFACE
+              value: http://192.168.50.9:8080
+            - name: REDIS_ADDRESS
+              value: teabarrel:6379
+            - name: REDIS_PASSWORD
+              value: ""
+            - name: REDIS_DB
+              value: "0"
+            - name: DEV
+              value: "false"
+            - name: WATCH
+              value: "false"
+            - name: PRIVATE_KEY
+              value: ""
+            - name: NO_PARTY_FEE_ADDRESSES
+              value: "0x5dd4039c32F6EEF427D6F67600D8920c9631D59D,0xB65e1f02705fc73a27A937f5b85f31f703dADb24,0x125221dbA73285D450ecD860BE3253e7B5317bA1,0x96F5c4DC1a88827612E42D6256c832A78b87e1c2,0x5bbfa5724260Cb175cB39b24802A04c3bfe72eb3,0xdFA7EFD9AE0742A20a923Bd52348E43bc5d27582,0x6be3c5e31024F4CB6b3eB3a4e75e41A7Eb721372,0xCaF4ca2f33608De508306Ef447990ea9f9DEbe75,0xe67a93EcE4fC78cfD43a9a01A1F8636cB829Ad04,0x40DCE134fcCA8a4484e3610267e85f423517f4d3,0x02E4e64fC98a2f1e47fBdD42390dE1bd7B65307C,0x8f7231fC7A4ed556E53030f5f7160604b7E78a30,0x5d3d6158Ea302BCC1C4bAC1A2CE0aA269d2b384C,0xDffDf81a03A073332239A92a7BE02F9887Ae6d97,0xb5c79D59fAb4Ba5b5f142858280C221b9f91877a,0x373C42955c4fC778b257BD1aCCF0b0349830a725,0x87A7a8bE5dcE123B53C836B1f50B8Cd14A78d40D,0x2E6c4B7ece2bD1f52a0719D00bE4948d8e087D8b,0xb24c4549009bc574DBF1bc07eE1D46CF294B7a16,0xEbEdeff4b430c27E134e2923D0E04a96EAdAC2B3,0x00000000A828489a6cad8aac9cB635a83eC6ae63,0xe70d7323b75af34F384522F984CF8b95E08C4Ff5"
+            - name: EXCHANGE_SERVER_ID
+              value: "0x0"
+
+# ---
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: adams
+# spec:
+#   selector:
+#     app: adams
+#   ports:
+#     - port: 80
+#       protocol: TCP
+#       targetPort: 8080
+#       name: interface
+#     - port: 30003
+#       protocol: TCP
+#       targetPort: 30003
+#       name: p2p
+# status:
+#   loadBalancer: {}
+
+
+# ---

@@ -1,0 +1,50 @@
+# kubectl expose deployment radiant --type=LoadBalancer --name=radiant
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: radiant
+    component: cache
+  name: radiant
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: radiant
+  template:
+    metadata:
+      labels:
+        name: radiant
+        component: cache
+    spec:
+      containers:
+      - name: radiant
+        image: imaybeagod/radiant
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 7333
+          name: p2p
+        ports:
+        - containerPort: 7332
+          name: rpc
+
+--- 
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: radiant
+spec:
+  selector:
+    app: radiant
+  ports:
+    - port: 7332
+      protocol: TCP
+      targetPort: 7332
+      name: rpc
+    - port: 7333
+      protocol: TCP
+      targetPort: 7333
+      name: p2ptcp
+status:
+  loadBalancer: {}

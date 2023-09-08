@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tron-fullnode
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tron-fullnode
+  template:
+    metadata:
+      labels:
+        app: tron-fullnode
+    spec:
+      containers:
+      - name: tron-fullnode
+        image: trontools/quickstart
+        ports:
+        - containerPort: 18888
+        volumeMounts:
+        - name: tron-volume
+          mountPath: /data/tron
+      volumes:
+      - name: tron-volume
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tron-fullnode
+spec:
+  ports:
+  - port: 18888
+    targetPort: 18888
+  selector:
+    app: tron-fullnode
+  type: LoadBalancer

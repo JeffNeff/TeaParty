@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: filecoin-node
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: filecoin-node
+  template:
+    metadata:
+      labels:
+        app: filecoin-node
+    spec:
+      containers:
+        - name: lotus
+          image: filecoin/lotus:v1.20.4
+          args:
+            - "daemon"
+          ports:
+            - name: rpc
+              containerPort: 1234
+          # volumeMounts:
+          #   - name: filecoin-data
+          #     mountPath: /data

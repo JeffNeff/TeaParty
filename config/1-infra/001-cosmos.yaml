@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cosmos-fullnode
+spec:
+  selector:
+    matchLabels:
+      app: cosmos-fullnode
+  template:
+    metadata:
+      labels:
+        app: cosmos-fullnode
+    spec:
+      containers:
+      - name: cosmos-node
+        image: cosmos/gaia:v4.1.1
+        command:
+          - "/bin/sh"
+          - "-c"
+          - "/usr/bin/gaiad start --home=/data/gaia"
+        ports:
+          - containerPort: 26656
+            name: p2p
+          - containerPort: 26657
+            name: rpc
+        volumeMounts:
+          - name: cosmos-data
+            mountPath: /data
+      volumes:
+      - name: cosmos-data
+        persistentVolumeClaim:
+          claimName: cosmos-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cosmos-fullnode
+spec:
+  selector:
+    app: cosmos-fullnode
+  ports:
+  - name: p2p
+    port: 26656
+    targetPort: p2p
+  - name: rpc
+    port: 26657
+    targetPort: rpc
+  type: ClusterIP

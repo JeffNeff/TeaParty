@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rippled-config
+data:
+  rippled.cfg: |
+    [server]
+    port_rpc_admin_local = 5006
+    port_peer = 51235
+    port_ws_public = 5006
+    [rpc_startup]
+    [database_path]
+    type = nudb
+    path = /var/lib/rippled/db/nudb
+    [ledger_history]
+    [node_size]
+    medium
+    [validation_quorum]
+    3
+    [ips]
+    [ssl_verify]
+    1
+    [ssl_verify_file]
+    /etc/opt/ripple/validator-keys.json
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rippled
+spec:
+  selector:
+    matchLabels:
+      app: rippled
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: rippled
+    spec:
+      containers:
+      - name: rippled
+        image: xrptipbot/rippled
+        ports:
+        - containerPort: 51235
+        - containerPort: 5005
+        args:
+        - "--net"
+        - "public"
+        - "--rpc_allow_remote"
+        - "true"
+        - "--rpc_ip"
+        - "0.0.0.0"
+        - "--rpc_port"
+        - "5005"
+        - "--rpc_user"
+        - "rpcuser"
+        - "--rpc_password"
+        - "rpcpassword"
+        - "--conf"
+        - "/etc/opt/ripple/rippled.cfg"
+        volumeMounts:
+        - name: config
+          mountPath: /etc/opt/ripple/rippled.cfg
+          subPath: rippled.cfg
+      volumes:
+      - name: config
+        configMap:
+          name: rippled-config
+          items:
+          - key: rippled.cfg
+            path: rippled.cfg
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rippled
+spec:
+  selector:
+    app: rippled
+  ports:
+  - name: rippled-peer
+    port: 51235
+    targetPort: 51235
+  - name: rippled-rpc
+    port: 5005
+    targetPort: 5005
+

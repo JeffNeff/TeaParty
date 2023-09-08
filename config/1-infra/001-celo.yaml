@@ -1,0 +1,107 @@
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   creationTimestamp: null
+#   labels:
+#     io.kompose.service: celo-claim0
+#   name: celo-claim0
+# spec:
+#   accessModes:
+#   - ReadWriteOnce
+#   resources:
+#     requests:
+#       storage: 50Gi
+# status: {}
+
+# ---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f nodes.yaml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: celo
+  name: celo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: celo
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f nodes.yaml
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: celo
+    spec:
+      containers:
+      - args:
+        - --syncmode=light
+        - --cache=8192
+        - --ws
+        - --ws.addr=0.0.0.0
+        - --http
+        - --http.addr=0.0.0.0
+        - --http.vhosts=*
+        - --graphql
+        - --graphql.vhosts=*
+        - --metrics
+        - --mainnet
+        - --maxpeers=30
+        - --datadir=/home/eth/.ethereum
+        env:
+        - name: CELO_ACCOUNT_ADDRESS
+          value: "0x5bbfa5724260Cb175cB39b24802A04c3bfe72eb3"
+        image: us.gcr.io/celo-org/geth:mainnet
+        imagePullPolicy: ""
+        name: celo
+        ports:
+        - containerPort: 8545
+        - containerPort: 8546
+        - containerPort: 30303
+        resources: {}
+        # volumeMounts:
+        # - mountPath: /root/.celo
+        #   name: celo-claim0
+      restartPolicy: Always
+      serviceAccountName: ""
+      # volumes:
+      # - name: celo-claim0
+      #   persistentVolumeClaim:
+      #     claimName: celo-claim0
+status: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert -f nodes.yaml
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: celo
+  name: celo
+spec:
+  ports:
+  - name: "rpc"
+    port: 8545
+    targetPort: 8545
+  - name: "8546"
+    port: 8546
+    targetPort: 8546
+  - name: "30303"
+    port: 30303
+    targetPort: 30303
+  selector:
+    io.kompose.service: celo
+status:
+  loadBalancer: {}

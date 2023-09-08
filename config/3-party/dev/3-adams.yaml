@@ -1,0 +1,95 @@
+# kubectl expose deployment adams --type=LoadBalancer --name=adamslb
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adams
+  labels:
+    app: adams
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: adams
+  template:
+    metadata:
+      labels:
+        app: adams
+    spec:
+      containers:
+        - name: adams
+          image: imaybeagod/adams
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+            - containerPort: 30003
+          env:
+            - name: MO_RPC_1
+              value: https://rpc.mo-scout.com
+            - name: MO_RPC_2
+              value:  https://rpc.mo-scout.com
+            - name: CELO_RPC_1
+              value: https://celo-alfajores.infura.io/v3/61979797a8bb4bfe9dddd4ff9675db7e
+            - name: CELO_RPC_2
+              value: https://celo-alfajores.infura.io/v3/61979797a8bb4bfe9dddd4ff9675db7e
+            - name: ETH_RPC_1
+              value: https://goerli.infura.io/v3/61979797a8bb4bfe9dddd4ff9675db7e
+            - name: ETH_RPC_2
+              value: https://goerli.infura.io/v3/61979797a8bb4bfe9dddd4ff9675db7e
+            - name: POLY_RPC_1
+              value: https://polygon-mumbai.infura.io/v3/61979797a8bb4bfe9dddd4ff9675db7e
+            - name: POLY_RPC_2
+              value: https://polygon-mumbai.infura.io/v3/61979797a8bb4bfe9dddd4ff9675db7e
+            - name: BTC_RPC_1
+              value: "off"
+            - name: BTC_RPC_2
+              value: "off"
+            - name: RXD_RPC_1
+              value: http://10.1.36.241:7332
+            - name: RXD_RPC_2
+              value: http://10.1.36.241:7332
+            - name: KAS_RPC_1
+              value: 10.1.36.242:16110 
+            - name: KAS_RPC_2
+              value: 10.1.36.242:16110 
+            - name: SOL_RPC_1
+              value: https://api.testnet.solana.com
+              # value: https://api.mainnet-beta.solana.com
+            - name: SOL_RPC_2
+              value: https://api.testnet.solana.com
+            - name: MO_BLOCK_EXPLORER
+              value: https://mo-scout.com
+            - name: KASPA_INTERFACE
+              value: http://10.1.36.232:8080
+            - name: REDIS_ADDRESS
+              value: 192.168.0.105:6379 
+            - name: REDIS_PASSWORD
+              value: ""
+            - name: REDIS_DB
+              value: "0"
+            - name: DEV
+              value: "false"
+            - name: WATCH
+              value: "true"
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: adams
+spec:
+  selector:
+    app: adams
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 8080
+      name: interface
+    - port: 30003
+      protocol: TCP
+      targetPort: 30003
+      name: p2p
+status:
+  loadBalancer: {}
+
+
+---

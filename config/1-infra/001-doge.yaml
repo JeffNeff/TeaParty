@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dogecoin-node
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dogecoin-node
+  template:
+    metadata:
+      labels:
+        app: dogecoin-node
+    spec:
+      containers:
+      - name: dogecoin
+        image: dogecoin/dogecoin:latest
+        command:
+        - "dogecoind"
+        args:
+        - "-printtoconsole"
+        - "-server"
+        - "-rpcallowip=0.0.0.0/0"
+        - "-rpcuser=dogecoin"
+        - "-rpcpassword=password"
+        - "-txindex"
+        ports:
+        - containerPort: 22556
+          name: p2p
+        - containerPort: 22555
+          name: rpc
+        volumeMounts:
+        - name: dogecoin-data
+          mountPath: /root/.dogecoin
+      volumes:
+      - name: dogecoin-data
+        persistentVolumeClaim:
+          claimName: dogecoin-data

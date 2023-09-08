@@ -1,0 +1,1 @@
+This folder contains assets released to the public. 

@@ -1,5 +1,0 @@
-services:
-  tea:
-    image: tmjeff/tea
-    ports:
-    - 8088:8080

@@ -1,0 +1,52 @@
+# kubectl expose deployment teabarrel --type=LoadBalancer --name=teabarrel
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: teabarrel
+    component: cache
+  name: teabarrel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: teabarrel
+  template:
+    metadata:
+      labels:
+        name: teabarrel
+        component: cache
+    spec:
+      containers:
+      - name: teabarrel
+        image: redis
+        imagePullPolicy: Always
+        # args: ["--requirepass", "$(REDIS_PASS)"]
+        ports:
+        - containerPort: 6379
+          name: redis
+        env:
+        - name: MASTER
+          value: "true"
+        # - name: REDIS_PASS
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: redis
+        #       key: REDIS_PASS
+
+# --- 
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: redis
+# spec:
+#   selector:
+#     app: redis
+#   ports:
+#     - port: 6379
+#       protocol: TCP
+#       targetPort: 6379
+#       name: redis
+# status:
+#   loadBalancer: {}

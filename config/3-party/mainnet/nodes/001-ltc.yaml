@@ -1,0 +1,69 @@
+# kubectl expose deployment litecoin-core --type=LoadBalancer --name=litecoin
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert
+    kompose.version: 1.27.0 (b0ed6a2c9)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: litecoin-core
+  name: litecoin-core
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: litecoin-core
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: ./kompose convert
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: litecoin-core
+    spec:
+      containers:
+        - args:
+            - -printtoconsole
+            - -regtest=1
+            - -rest
+            - -rpcallowip=::/0
+            - -rpcpassword=""
+            - -rpcport=9332
+            - -rpcuser=""
+            - -server
+          image: uphold/litecoin-core
+          name: litecoin-core
+          ports:
+            - containerPort: 9333
+            - containerPort: 9332
+          resources: {}
+      restartPolicy: Always
+status: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert
+    kompose.version: 1.27.0 (b0ed6a2c9)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: litecoin-core
+  name: litecoin-core
+spec:
+  ports:
+    - name: "19332"
+      port: 19332
+      targetPort: 19332
+    - name: "19444"
+      port: 19444
+      targetPort: 19444
+  selector:
+    io.kompose.service: litecoin-core
+status:
+  loadBalancer: {}

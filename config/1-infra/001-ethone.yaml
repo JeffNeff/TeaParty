@@ -1,0 +1,109 @@
+# kubectl -n prod expose deployment ethone --type=LoadBalancer --name=ethone
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: ethone-claim0
+  name: ethone-claim0
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 70Gi
+status: {}
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: ethone
+  name: ethone
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: ethone
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: ethone
+    spec:
+      containers:
+      - args:
+        - geth
+        - --syncmode=full
+        - --networkid=4949
+        - --cache=8192
+        - --ws
+        - --ws.addr=0.0.0.0
+        - --http
+        - --http.addr=0.0.0.0
+        - --http.vhosts=*
+        - --graphql
+        - --graphql.vhosts=*
+        - --metrics
+        - --maxpeers=30
+        - --datadir=/root/.ethone
+        - --bootnodes=enode://a6ee2eaca69b93e630e9067b142fc7a803cf6361fd7de03b5071243a69b71b6878a9786b873658eb13345a2e92c62e0ce62e90f8e68bbccd84814fe0b3e90274@165.227.42.184:30303
+        image: gcr.io/mineonlium/ethone
+        imagePullPolicy: ""
+        name: ethone
+        ports:
+        - containerPort: 8545
+        - containerPort: 8546
+        - containerPort: 30303
+        resources: {}
+        volumeMounts:
+        - mountPath: /root/.ethone
+          name: ethone-claim0
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes:
+      - name: ethone-claim0
+        persistentVolumeClaim:
+          claimName: ethone-claim0
+status: {}
+
+---
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   annotations:
+#     kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert
+#     kompose.version: 1.21.0 (992df58d8)
+#   creationTimestamp: null
+#   labels:
+#     io.kompose.service: ethone
+#   name: ethone
+# spec:
+#   ports:
+#   - name: "8545"
+#     port: 8545
+#     targetPort: 8545
+#   - name: "8546"
+#     port: 8546
+#     targetPort: 8546
+#   - name: "30303"
+#     port: 30303
+#     targetPort: 30303
+#   selector:
+#     io.kompose.service: ethone
+# status:
+#   loadBalancer: {}
+

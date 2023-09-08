@@ -1,0 +1,66 @@
+# kubectl expose deployment teabarrel --type=LoadBalancer --name=teabarrel
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: teabarrel-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 40Gi
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: teabarrel
+    component: cache
+  name: teabarrel
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: teabarrel
+  template:
+    metadata:
+      labels:
+        name: teabarrel
+        component: cache
+    spec:
+      containers:
+      - name: teabarrel
+        image: redis
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 6379
+          name: redis
+        env:
+        - name: MASTER
+          value: "true"
+        volumeMounts:
+        - name: teabarrel-data
+          mountPath: /data
+      volumes:
+      - name: teabarrel-data
+        persistentVolumeClaim:
+          claimName: teabarrel-pvc
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: teabarrel
+spec:
+  selector:
+    name: teabarrel
+  ports:
+    - port: 6379
+      protocol: TCP
+      targetPort: 6379
+      name: teabarrel
+status:
+  loadBalancer: {}

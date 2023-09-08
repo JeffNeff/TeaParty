@@ -1,0 +1,45 @@
+# kubectl expose deployment addressinterface --type=LoadBalancer --name=addressinterface
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: addressinterface
+    component: cache
+  name: addressinterface
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: addressinterface
+  template:
+    metadata:
+      labels:
+        name: addressinterface
+        component: cache
+    spec:
+      containers:
+        - name: addressinterface
+          image: imaybeagod/kaspainterface
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: kaspa
+          env:
+            - name: RADIANT
+              value: 10.1.243.101:7332
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: addressinterface
+spec:
+  selector:
+    app: addressinterface
+  ports:
+    - port: 8080
+      protocol: TCP
+      targetPort: 8080
+      name: kaspa
+status:
+  loadBalancer: {}

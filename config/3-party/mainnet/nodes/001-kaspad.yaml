@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kaspaconfig
+data:
+  kaspad.conf: |
+    [Application Options]
+    listen=0.0.0.0
+    utxoindex=true
+    rpclisten=:16110
+    rpcmaxclients=1000
+    rpcmaxwebsockets=1000
+    rpcmaxconcurrentrequests=1000
+    timeoutseconds=60
+
+---
+
+# kubectl expose deployment kaspad --type=LoadBalancer --name=kaspad
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: kaspad
+    component: cache
+  name: kaspad
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: kaspad
+  template:
+    metadata:
+      labels:
+        name: kaspad
+        component: cache
+    spec:
+      containers:
+      - name: kaspad
+        image: imaybeagod/kaspad
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 16111
+          name: p2p
+        - containerPort: 16110
+          name: rpc
+        command:
+          - '/app/kaspad'
+        volumeMounts:
+          - name: kaspaconfig
+            mountPath: /root/.kaspad/kaspad.conf
+      volumes:
+        - name: kaspaconfig
+          configMap:
+            name: kaspaconfig
+
+--- 
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: kaspad
+spec:
+  selector:
+    app: kaspad
+  ports:
+    - port: 16110
+      protocol: TCP
+      targetPort: 16110
+      name: rpc
+    - port: 16111
+      protocol: TCP
+      targetPort: 16111
+      name: p2ptcp
+status:
+  loadBalancer: {}

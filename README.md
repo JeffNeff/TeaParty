@@ -1,60 +1,25 @@
 # TeaParty
-This is the public alpha testing of Tea and Party. 
 
-The goal of `alpha1v1` release:
-* Begin transfering funds between parties from one chain to another using the proposed escrow system.
+`Teaparty` an automated digital escrow system.
 
-Security, fail over, scaling, and data/state management have not been addresed yet. 
+## Development Tools
+ * Go 1.19
+ * Node 16
+ * Docker
+ * Make
+ * gcc
+ * ko (go install github.com/google/ko@latest)
 
-**REMINDERS AND ANNOUCEMENTS:**
-* This should NOT be connected to any mainnet RPC's.
-* This is strictly Proof Of Concept code and still has tons of flaws
-* This is set up for debugging, I.E. we are logging and storing lots of things that 
-would not, and should not, be stored in a production enviorment. PLEASE DO NOT PUT REAL MONEY INTO THIS.
+## Setting up a local Docker Desktop enviorment
 
-## Known Issues
-
-* The refund/failover system is not completed. So failed transactions right now == lost transactions 
-
-
-## Start Tea and Party locally. 
-
-Populate the env. sections with RPC servers. 
-
-Then bring up Tea and Party
+From the root of this git:
 ```
 docker compose up -d
-docker compose -f docker-compose.tea.yaml up -d 
 ```
+This will build all of the projects and bring them up in your local enviorment providing the following local services to be accessed:
 
-visit http://localhost:8081 to view the debugging panel. 
+* `http://localhost:8080` - A dockerized `tea` application
+* `http://localhost:8089` - `reddis commander` a debugging tool that allows one to easily view the state of the redis containers.
 
 
 
-## Interacting with Party
-
-Untill `tea` is complete, we interact with `party` via a set of scripts found in the `test/` folder
-
-### create a trade order:
-
-* Update the const at the top of the `sell.js` file and modify the variables at the top to reflect your own NKN and Shipping addresses. 
-
-* Run the `sell.js` file 
-
-```
-node sell.js
-```
-
-### list the open orders:
-
-```
-node list.js
-```
-
-### purchase an order:
-
-* Update the const at the top of the `buy.js` file and modify the variables at the top to reflect your own NKN and Shipping addresses. 
-
-```
-node buy.js
-```

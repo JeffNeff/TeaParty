@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bsc-node
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bsc-node
+  template:
+    metadata:
+      labels:
+        app: bsc-node
+    spec:
+      containers:
+        - name: bsc
+          image: binance/smart-chain:v1.2.5
+          args:
+            - "--http.corsdomain=*"
+            - "--http.vhosts=*"
+          ports:
+            - name: rpc
+              containerPort: 8545
+            - name: ws
+              containerPort: 8546
+      #     volumeMounts:
+      #       - name: bsc-data
+      #         mountPath: /data
+      # volumes:
+      #   - name: bsc-data
+      #     persistentVolumeClaim:
+      #       claimName: bsc-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bsc-node
+spec:
+  selector:
+    app: bsc-node
+  ports:
+    - name: rpc
+      port: 8545
+      targetPort: rpc
+    - name: ws
+      port: 8546
+      targetPort: ws

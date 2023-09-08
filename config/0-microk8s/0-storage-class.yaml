@@ -1,0 +1,23 @@
+# Specify another hard drive to use for PVC 
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: srv-hostpath
+provisioner: microk8s.io/hostpath
+reclaimPolicy: Delete
+parameters:
+  pvDir: /srv/microk8sdata
+volumeBindingMode: WaitForFirstConsumer
+
+---
+
+# Specify another hard drive to use for PVC 
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: external-hostpath
+provisioner: microk8s.io/hostpath
+reclaimPolicy: Delete
+parameters:
+  pvDir: /media/external/microk8sdata
+volumeBindingMode: WaitForFirstConsumer

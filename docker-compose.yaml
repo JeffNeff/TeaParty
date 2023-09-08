@@ -1,27 +1,62 @@
+version: "3.8"
+
 services:
-  party:
-    image: tmjeff/party
+  teabarrel:
+    image: redis
+    container_name: teabarrel
     environment:
-      MO_RPC_1: "https://rpc.mo-scout.com"
-      MO_RPC_2: 
-      BTC_RPC_1: "http://not-working-righ-now.com"
-      BTC_RPC_2: "http://not-working-righ-now.com"
-      AVALANCE_RPC_1: "http://not-working-righ-now.com"
-      AVALANCE_RPC_2: "http://not-working-righ-now.com"
-      ETH_RPC_1: 
-      ETH_RPC_2: 
-      POLY_RPC_1: 
-      POLY_RPC_2: 
-      K_SINK: http://sockeye:8080
-      DLS: http://sockeye:8080
+      - MASTER=true
     ports:
-      - 8080:8080
-# debugger is a service that can be used to debug the party service
-# it is not required for normal operation and will be replaced by "Tea" 
-# the desktop application.
-# it can be accessed at http://localhost:8081 to view a stream of events
-# produced by the party service
-  debugger:
-    image: docker.io/n3wscott/sockeye:v0.7.0@sha256:e603d8494eeacce966e57f8f508e4c4f6bebc71d095e3f5a0a1abaf42c5f0e48
+      - "6379:6379"
+
+  tea-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: tea-commander
+    environment:
+      - REDIS_HOSTS=local:teabarrel:6379
     ports:
-      - 8081:8080
+      - "8082:8081"
+
+  adams:
+    build:
+      context: ./adams
+      dockerfile: Dockerfile
+    container_name: adams
+    depends_on:
+      - teabarrel
+    environment:
+      - PARTY_CHAIN_1=https://tea.mining4people.com/rpc
+      - PARTY_CHAIN_2=https://tea.mining4people.com/rpc
+      - CELO_RPC_1=https://celo-mainnet.infura.io/v3/61979797a8bb4bfe9dddd4ff9675db7e
+      - CELO_RPC_2=https://celo-mainnet.infura.io/v3/61979797a8bb4bfe9dddd4ff9675db7e
+      - ETH_RPC_1=https://mainnet.infura.io/v3/61979797a8bb4bfe9dddd4ff9675db7e
+      - ETH_RPC_2=https://mainnet.infura.io/v3/61979797a8bb4bfe9dddd4ff9675db7e
+      - POLY_RPC_1=https://polygon-mainnet.infura.io/v3/61979797a8bb4bfe9dddd4ff9675db7e
+      - POLY_RPC_2=https://polygon-mainnet.infura.io/v3/61979797a8bb4bfe9dddd4ff9675db7e
+      - BTC_RPC_1=10.152.183.37:18443
+      - BTC_RPC_2=10.152.183.37:18443
+      - LTC_RPC_1=10.152.183.176:19332
+      - LTC_RPC_2=10.152.183.176:19332
+      - RXD_RPC_1=192.168.50.8:7332
+      - RXD_RPC_2=192.168.50.8:7332
+      - KAS_RPC_1=10.152.183.84:16110
+      - KAS_RPC_2=10.152.183.84:16110
+      - SOL_RPC_1=https://api.mainnet-beta.solana.com
+      - SOL_RPC_2=https://api.mainnet-beta.solana.com
+      - OCT_RPC_1=https://rpc.octa.space
+      - OCT_RPC_2=https://rpc.octa.space
+      - ETHONE_RPC_1=http://rpcetherone.dgir.fr
+      - ETHONE_RPC_2=http://rpcetherone.dgir.fr
+      - BLOCK_EXPLORER=https://www.partyexplorer.co
+      - KASPA_INTERFACE=http://192.168.50.9:8080
+      - REDIS_ADDRESS=teabarrel:6379
+      - REDIS_PASSWORD=""
+      - REDIS_DB=0
+      - DEV=true
+      - WATCH=false
+      - PRIVATE_KEY=
+      - NO_PARTY_FEE_ADDRESSES=0x5dd4039c32F6EEF427D6F67600D8920c9631D59D,0xB65e1f02705fc73a27A937f5b85f31f703dADb24,0x125221dbA73285D450ecD860BE3253e7B5317bA1,0x96F5c4DC1a88827612E42D6256c832A78b87e1c2,0x5bbfa5724260Cb175cB39b24802A04c3bfe72eb3,0xdFA7EFD9AE0742A20a923Bd52348E43bc5d27582,0x6be3c5e31024F4CB6b3eB3a4e75e41A7Eb721372,0xCaF4ca2f33608De508306Ef447990ea9f9DEbe75,0xe67a93EcE4fC78cfD43a9a01A1F8636cB829Ad04,0x40DCE134fcCA8a4484e3610267e85f423517f4d3,0x02E4e64fC98a2f1e47fBdD42390dE1bd7B65307C,0x8f7231fC7A4ed556E53030f5f7160604b7E78a30,0x5d3d6158Ea302BCC1C4bAC1A2CE0aA269d2b384C,0xDffDf81a03A073332239A92a7BE02F9887Ae6d97,0xb5c79D59fAb4Ba5b5f142858280C221b9f91877a,0x373C42955c4fC778b257BD1aCCF0b0349830a725,0x87A7a8bE5dcE123B53C836B1f50B8Cd14A78d40D,0x2E6c4B7ece2bD1f52a0719D00bE4948d8e087D8b,0xb24c4549009bc574DBF1bc07eE1D46CF294B7a16,0xEbEdeff4b430c27E134e2923D0E04a96EAdAC2B3,0x00000000A828489a6cad8aac9cB635a83eC6ae63,0xe70d7323b75af34F384522F984CF8b95E08C4Ff5
+      - EXCHANGE_SERVER_ID=0x0
+    ports:
+      - "8080:8080"
+      - "30003:30003"

@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cardano-node
+spec:
+  selector:
+    matchLabels:
+      app: cardano-node
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cardano-node
+    spec:
+      containers:
+      - name: cardano-node
+        image: inputoutput/cardano-node
+        command: ["/bin/bash"]
+        args:
+        - "-c"
+        - "cardano-node run --topology /opt/cardano/config/mainnet-topology.json --database-path /data --socket-path /tmp/cardano-node.socket --host-addr 0.0.0.0 --config /opt/cardano/config/mainnet-config.json"
+        ports:
+        - containerPort: 3000
+        - containerPort: 12798
+      #   volumeMounts:
+      #   - name: cardano-config
+      #     mountPath: /opt/cardano/config
+      #   - name: cardano-data
+      #     mountPath: /data
+      # volumes:
+      # - name: cardano-config
+       

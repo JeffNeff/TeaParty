@@ -1,0 +1,83 @@
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ravencore-node-configmap
+data:
+  ravencore-node.json: |
+        {
+          "network": "livenet",
+          "port": 3001,
+          "services": [
+            "ravend",
+            "web",
+            "insight-api",
+            "insight-ui"
+          ],
+          "messageLog": "",
+          "servicesConfig": {
+            "web": {
+              "disablePolling": false,
+              "enableSocketRPC": true,
+              "disableCors": true
+            },
+            "insight-ui": {
+              "routePrefix": "",
+              "apiPrefix": "api"
+            },
+            "insight-api": {
+              "routePrefix": "api",
+              "coinTicker" : "https://api.coinmarketcap.com/v1/ticker/ravencoin/?convert=USD",
+              "coinShort": "RVN",
+              "db": {
+                "host": "127.0.0.1",
+                "port": "27017",
+                "database": "raven-api-livenet",
+                "user": "test",
+                "password": "test1234"
+              }
+            },
+            "ravend": {
+              "sendTxLog": "/home/ubuntu/.ravencore/pushtx.log",
+              "spawn": {
+                "datadir": "/home/ubuntu/.ravencore/data",
+                "exec": "/home/ubuntu/rdk/ravencore/node_modules/ravencore-node/bin/ravend",
+                "rpcqueue": 1000,
+                "rpcport": 8766,
+                "zmqpubrawtx": "tcp://127.0.0.1:28332",
+                "zmqpubhashblock": "tcp://127.0.0.1:28332",
+                "rpcuser": "ravencoin",
+                "rpcpassword": "local321"
+              }
+            }
+          }
+        }
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ravencoin-deployment
+spec:
+  selector:
+    matchLabels:
+      app: ravencoin
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ravencoin
+    spec:
+      containers:
+      - name: ravend
+        image: ravenproject/ravend:4.3.1.0
+        ports:
+        - containerPort: 3001
+        volumeMounts:
+        - name: config-volume-rvn
+          mountPath: /etc/ravencore-node
+      volumes:
+      - name: config-volume-rvn
+        configMap:
+          name: ravencore-node-configmap

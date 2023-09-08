@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dash-config
+data:
+  dash.conf: |
+    rpcuser=yourusername
+    rpcpassword=yourpassword
+    rpcallowip=0.0.0.0/0
+    txindex=1
+
+---
+
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: dash-pv
+spec:
+  capacity:
+    storage: 50Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /mnt/data/dash
+
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dash-pvc
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dash
+  template:
+    metadata:
+      labels:
+        app: dash
+    spec:
+      containers:
+        - name: dash
+          image: dashpay/dashd
+          imagePullPolicy: IfNotPresent
+          command: ["dashd", "-printtoconsole"]
+          ports:
+            - containerPort: 9998
+              name: rpc
+            - containerPort: 9999
+              name: zmq
+          volumeMounts:
+            - name: dash-data
+              mountPath: /dash
+            - name: dash-config
+              mountPath: /dash/dash.conf
+              subPath: dash.conf
+      volumes:
+        - name: dash-data
+          persistentVolumeClaim:
+            claimName: dash-pvc
+        - name: dash-config
+          configMap:
+            name: dash-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dash
+spec:
+  selector:
+    app: dash
+  ports:
+    - name: rpc
+      port: 9998
+    - name: zmq
+      port: 9999
+  type: LoadBalancer

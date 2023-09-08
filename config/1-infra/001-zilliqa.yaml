@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zilliqa-node
+spec:
+  selector:
+    matchLabels:
+      app: zilliqa-node
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: zilliqa-node
+    spec:
+      containers:
+        - name: zilliqa
+          image: zilliqa/zilliqa:v7.0.0
+          command: ["/bin/sh"]
+          args: ["-c", "/usr/local/bin/zilliqa --networkid 1 --rpc --rpcaddr 0.0.0.0 --rpcport 8545 --miningaddr 0xYOUR_MINING_ADDRESS"]
+          ports:
+            - containerPort: 8545
+          volumeMounts:
+            - name: zilliqa-data
+              mountPath: /root/.zilliqa
+      volumes:
+        - name: zilliqa-data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zilliqa-node
+spec:
+  selector:
+    app: zilliqa-node
+  ports:
+    - name: rpc
+      protocol: TCP
+      port: 8545
+      targetPort: 8545
+  type: ClusterIP

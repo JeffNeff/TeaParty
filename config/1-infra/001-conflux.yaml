@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: conflux-node
+  labels:
+    app: conflux
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: conflux
+  template:
+    metadata:
+      labels:
+        app: conflux
+    spec:
+      containers:
+      - name: conflux
+        image: confluxnetwork/conflux-rust:v1.1.1
+        args:
+        - cfx
+        - --rpc.listen
+        - --rpc.api
+        - personal,net,eth,trace,vm
+        - --jsonrpc.corsdomain=*
+        - --jsonrpc.hosts=*      
+        ports:
+        - containerPort: 12537
+          name: http
+        - containerPort: 12539
+          name: ws
+        volumeMounts:
+        - name: conflux-data
+          mountPath: /root/.conflux
+      volumes:
+      - name: conflux-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: conflux-node
+spec:
+  selector:
+    app: conflux
+  ports:
+  - name: http
+    protocol: TCP
+    port: 12537
+    targetPort: 12537
+  - name: ws
+    protocol: TCP
+    port: 12539
+    targetPort: 12539

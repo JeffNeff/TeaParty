@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nexad
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nexad
+  template:
+    metadata:
+      labels:
+        app: nexad
+    spec:
+      containers:
+      - name: nexad
+        image: gcr.io/mineonlium/nexad
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 7228
+        - containerPort: 7227
+        - containerPort: 7230
+        - containerPort: 7229
+        # volumeMounts:
+        # - name: nexa-data
+        #   mountPath: /data
+        command: ["nexad"]
+        args:
+          - "-printtoconsole"
+          - "-regtest=1"
+          - "-rest"
+          - "-rpcallowip=::/0"
+          - "-rpcuser=dockeruser"
+          - "-rpcpassword=dockerpass"
+          - "-rpcport=18443"
+          - "-server"
+          - "-electrum"
+      # volumes:
+      # - name: nexa-data
+      #   persistentVolumeClaim:
+      #     claimName: nexa-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nexad
+spec:
+  selector:
+    app: nexad
+  ports:
+  - name: p2p
+    port: 7228
+    targetPort: 7228
+  - name: rpc
+    port: 7227
+    targetPort: 7227
+  - name: zmq
+    port: 7230
+    targetPort: 7230
+  - name: testnet-rpc
+    port: 7229
+    targetPort: 7229
+
+

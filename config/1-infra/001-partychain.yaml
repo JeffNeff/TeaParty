@@ -1,0 +1,118 @@
+# ---
+
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   creationTimestamp: null
+#   labels:
+#     io.kompose.service: partychain-claim0
+#   name: partychain-claim0
+# spec:
+#   storageClassName: srv-hostpath
+#   accessModes:
+#     - ReadWriteOnce
+#   resources:
+#     requests:
+#       storage: 70Gi
+# status: {}
+
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: partychain
+  name: partychain
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: partychain
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: ./kompose convert
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: partychain
+    spec:
+      containers:
+        - args:
+            - --http
+            - --http.port=8545
+            - --http.addr=0.0.0.0
+            - --http.api=personal,eth,net,trace,web3,txpool,miner,admin,clique
+            - --http.corsdomain='*'
+            - --http.vhosts='*'
+            - --ws
+            - --ws.port=8546
+            - --ws.addr=0.0.0.0
+            - --ws.api=personal,eth,net,trace,web3,txpool,miner,admin,clique
+            - --ws.origins='*'
+            - --allow-insecure-unlock
+            - --syncmode=full
+            - --nodiscover
+          image: gcr.io/mineonlium/chain
+          name: partychain
+          ports:
+            - containerPort: 8545
+            - containerPort: 8546
+            - containerPort: 8547
+            - containerPort: 30303
+            - containerPort: 50001
+          resources: {}
+          # volumeMounts:
+          #   - mountPath:  /go/.party 
+          #     name: partychain-claim0
+      restartPolicy: Always
+      # volumes:
+      #   - name: partychain-claim0
+      #     persistentVolumeClaim:
+      #       claimName: partychain-claim0
+      #   - name: mogen
+      #     configMap:
+      #       name: mogen
+status: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: partychain
+  name: partychain
+spec:
+  ports:
+    - name: "8545"
+      port: 8545
+      targetPort: 8545
+    - name: "8546"
+      port: 8546
+      targetPort: 8546
+    - name: "8547"
+      port: 8547
+      targetPort: 8547
+    - name: "30303"
+      port: 30303
+      targetPort: 30303
+    - name: "50001"
+      port: 50001
+      targetPort: 50001
+  selector:
+    io.kompose.service: partychain
+status:
+  loadBalancer: {}

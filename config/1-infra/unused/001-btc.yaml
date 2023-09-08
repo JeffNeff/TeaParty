@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert
+    kompose.version: 1.27.0 (b0ed6a2c9)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: bitcoin-core
+  name: bitcoin-core
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: bitcoin-core
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: ./kompose convert
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: bitcoin-core
+    spec:
+      containers:
+        - args:
+            - -printtoconsole
+            - -regtest=1
+            - -rest
+            - -rpcallowip=::/0
+            - -rpcpassword=dockerpass
+            - -rpcport=18443
+            - -rpcuser=dockeruser
+            - -server
+          image: ruimarinho/bitcoin-core:0.17
+          name: bitcoin-core
+          ports:
+            - containerPort: 18443
+          resources: {}
+      restartPolicy: Always
+status: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: ./kompose convert
+    kompose.version: 1.27.0 (b0ed6a2c9)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: bitcoin-core
+  name: bitcoin-core
+spec:
+  ports:
+    - name: "18443"
+      port: 18443
+      targetPort: 18443
+  selector:
+    io.kompose.service: bitcoin-core
+status:
+  loadBalancer: {}

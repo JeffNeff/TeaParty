@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: avalanche-node
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: avalanche-node
+  template:
+    metadata:
+      labels:
+        app: avalanche-node
+    spec:
+      containers:
+        - name: avalanche-node
+          image: ava-labs/avalanchego:v1.6.1
+          command: ["/avalanchego"]
+          args: ["--public-ip=<public-ip>", "--snow-avalanche-batch-size=1000", "--snow-concurrent-repolls=4", "--snow-virtuous-commit-threshold=5", "--network-id=cchain", "--staking-tls-cert-file=/path/to/cert.pem", "--staking-tls-key-file=/path/to/key.pem"]
+          volumeMounts:
+            - name: data
+              mountPath: /root/.avalanchego
+          ports:
+            - name: p2p
+              containerPort: 9651
+            - name: http
+              containerPort: 9650
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: avalanche-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: avalanche-node
+spec:
+  selector:
+    app: avalanche-node
+  ports:
+    - name: p2p
+      port: 9651
+      targetPort: p2p
+    - name: http
+      port: 9650
+      targetPort: http
+  type: LoadBalancer

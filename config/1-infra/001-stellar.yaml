@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stellar-node
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stellar-node
+  template:
+    metadata:
+      labels:
+        app: stellar-node
+    spec:
+      containers:
+      - name: stellar
+        image: stellar/quickstart:latest
+        command:
+        - "start"
+        args:
+        - "standalone"
+        ports:
+        - containerPort: 8000
+          name: horizon
+        - containerPort: 11625
+          name: peer

@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: polkadot-node
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: polkadot-node
+  template:
+    metadata:
+      labels:
+        app: polkadot-node
+    spec:
+      containers:
+        - name: polkadot
+          image: parity/polkadot:v0.9.9
+          args:
+            - "--pruning=archive"
+            - "--rpc-external"
+            - "--ws-external"
+            - "--rpc-cors=all"
+            - "--rpc-apis=web3,eth,net,pubsub,parity,traces,rpc,shh,shh_pubsub"
+          ports:
+            - name: rpc
+              containerPort: 9933
+            - name: ws
+              containerPort: 9944
+          volumeMounts:
+            - name: polkadot-data
+              mountPath: /data
+      volumes:
+        - name: polkadot-data
+          persistentVolumeClaim:
+            claimName: polkadot-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: polkadot-node
+spec:
+  selector:
+    app: polkadot-node
+  ports:
+    - name: rpc
+      port: 9933
+      targetPort: rpc
+    - name: ws
+      port: 9944
+      targetPort: ws

@@ -1,0 +1,46 @@
+# kubectl expose deployment ethstats --type=LoadBalancer --name=ethstats
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: ethstats
+    component: cache
+  name: ethstats
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: ethstats
+  template:
+    metadata:
+      labels:
+        name: ethstats
+        component: cache
+    spec:
+      containers:
+      - name: ethstats
+        image: gcr.io/mineonlium/partystats
+        imagePullPolicy: Always
+        # args: ["--requirepass", "$(REDIS_PASS)"]
+        ports:
+        - containerPort: 3000
+          name: ethstats
+        env:
+        - name: WS_SECRET
+          value: "secretthings"
+# --- 
+
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: redis
+# spec:
+#   selector:
+#     app: redis
+#   ports:
+#     - port: 6379
+#       protocol: TCP
+#       targetPort: 6379
+#       name: redis
+# status:
+#   loadBalancer: {}
