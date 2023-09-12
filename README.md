@@ -1,6 +1,3 @@
-Certainly! Based on the provided documentation and the information I've gathered from the repository, here's an expanded version of the developer documentation for the `TeaParty` project:
-
----
 
 # TeaParty
 
