@@ -56,8 +56,4 @@ Deployment manifests are provided to help you deploy the `TeaParty` application:
 - **`/config/2-party`**: Contains the necessary manifests for deploying the `TeaParty` backend.
 - **`/config/3-tools`**: Features an example of a containerized `tea` frontend application. Note: This might not work out-of-the-box and may require additional configuration.
 
----
 
-**Note**: The section "Building the Container Image" is a placeholder, as I didn't find specific instructions in the provided documentation. You might want to fill that in with the appropriate steps.
-
-I hope this expanded documentation helps! Let me know if you'd like any further modifications or additions.
